@@ -126,14 +126,9 @@ func Bind(i interface{}, r *http.Request) (err error) {
 	if err := BindPathParams(r, i); err != nil {
 		return err
 	}
-	// Only bind query parameters for GET/DELETE/HEAD to avoid unexpected behavior with destination struct binding from body.
-	// For example a request URL `&id=1&lang=en` with body `{"id":100,"lang":"de"}` would lead to precedence issues.
-	// The HTTP method check restores pre-v4.1.11 behavior to avoid these problems (see issue #1670)
-	method := r.Method
-	if method == http.MethodGet || method == http.MethodDelete || method == http.MethodHead {
-		if err = BindQueryParams(r, i); err != nil {
-			return err
-		}
+
+	if err := BindQueryParams(r, i); err != nil {
+		return err
 	}
 	return BindBody(r, i)
 }
