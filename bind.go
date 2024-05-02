@@ -13,6 +13,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/go-chi/chi/v5"
 )
 
 var ErrUnsupportedMediaType = errors.New("unsupported media type")
@@ -40,20 +42,27 @@ type bindMultipleUnmarshaler interface {
 	UnmarshalParams(params []string) error
 }
 
-//TODO:
-// BindPathParams binds path params to bindable object
-// func BindPathParams(r *http.Request, i interface{}) error {
-// 	names := c.ParamNames()
-// 	values := c.ParamValues()
-// 	params := map[string][]string{}
-// 	for i, name := range names {
-// 		params[name] = []string{values[i]}
-// 	}
-// 	if err := bindData(i, params, "param"); err != nil {
-// 		return NewHTTPError(http.StatusBadRequest, err.Error()).SetInternal(err)
-// 	}
-// 	return nil
-// }
+// BindPathParams binds path params to bindable object; only chi is supported
+func BindPathParams(r *http.Request, i interface{}) error {
+	ctx := r.Context()
+	rctx, ok := ctx.Value(chi.RouteCtxKey).(*chi.Context)
+
+	if !ok {
+		// TODO: std lib fallback
+		return nil
+	}
+
+	keys := rctx.URLParams.Keys
+	values := rctx.URLParams.Values
+	params := map[string][]string{}
+	for i, key := range keys {
+		params[key] = []string{values[i]}
+	}
+	if err := bindData(i, params, "param"); err != nil {
+		return err
+	}
+	return nil
+}
 
 // BindQueryParams binds query params to bindable object
 func BindQueryParams(r *http.Request, i interface{}) error {
@@ -114,10 +123,9 @@ func BindHeaders(r *http.Request, i interface{}) error {
 // Binding is done in following order: 1) path params; 2) query params; 3) request body. Each step COULD override previous
 // step binded values. For single source binding use their own methods BindBody, BindQueryParams, BindPathParams.
 func Bind(i interface{}, r *http.Request) (err error) {
-	//TODO:
-	// if err := BindPathParams(c, i); err != nil {
-	// 	return err
-	// }
+	if err := BindPathParams(r, i); err != nil {
+		return err
+	}
 	// Only bind query parameters for GET/DELETE/HEAD to avoid unexpected behavior with destination struct binding from body.
 	// For example a request URL `&id=1&lang=en` with body `{"id":100,"lang":"de"}` would lead to precedence issues.
 	// The HTTP method check restores pre-v4.1.11 behavior to avoid these problems (see issue #1670)
