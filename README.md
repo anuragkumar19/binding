@@ -23,7 +23,7 @@ This package provides different ways to perform binding, each described in the s
 
 ## Struct Tag Binding
 
-With struct binding you define a Go struct with tags specifying the data source and corresponding key. In your request handler you simply call `binding.Bind(i interface{})` with a pointer to your struct. The tags tell the binder everything it needs to know to load data from the request.
+With struct binding you define a Go struct with tags specifying the data source and corresponding key. In your request handler you simply call `binding.Bind(req, i interface{})` with a pointer to your struct. The tags tell the binder everything it needs to know to load data from the request.
 
 In this example a struct type `User` tells the binder to bind the query string parameter `id` to its string field `ID`:
 
