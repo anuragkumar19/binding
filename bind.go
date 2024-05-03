@@ -24,9 +24,6 @@ type Binder interface {
 	Bind(i interface{}, r *http.Request) error
 }
 
-// DefaultBinder is the default implementation of the Binder interface.
-type DefaultBinder struct{}
-
 // BindUnmarshaler is the interface used to wrap the UnmarshalParam method.
 // Types that don't implement this, but do implement encoding.TextUnmarshaler
 // will use that interface instead.
@@ -122,7 +119,7 @@ func BindHeaders(r *http.Request, i interface{}) error {
 // Bind implements the `Binder#Bind` function.
 // Binding is done in following order: 1) path params; 2) query params; 3) request body. Each step COULD override previous
 // step binded values. For single source binding use their own methods BindBody, BindQueryParams, BindPathParams.
-func Bind(i interface{}, r *http.Request) (err error) {
+func Bind(r *http.Request, i interface{}) (err error) {
 	if err := BindPathParams(r, i); err != nil {
 		return err
 	}
