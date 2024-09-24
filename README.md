@@ -182,7 +182,7 @@ The following methods provide a handful of methods for binding to Go data type. 
 
 -   `binding.QueryParamsBinder(req)` - binds query parameters (source URL)
 -   `binding.PathParamsBinder(req)` - binds path parameters (source URL)
--   `binding.FormFieldBinder(req)` - binds form fields (source URL + body). See also [Request.ParseForm](https://golang.org/pkg/net/http/#Request.ParseForm).
+-   `binding.FormFieldBinder(req)` - binds form fields body. See also [Request.PostFormValue](https://pkg.go.dev/net/http#Request.PostFormValue).
 
 ### Error Handling
 
